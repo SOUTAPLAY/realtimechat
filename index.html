@@ -1,0 +1,106 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="./style.css" type="text/css">
+        <style>
+            body {
+                text-align: center;
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+            .container {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                gap: 10px;
+                flex-wrap: wrap;
+                padding: 10px;
+            }
+            .messageBox {
+                width: 100%;
+                max-width: 300px;
+                padding: 10px;
+                box-sizing: border-box;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                background-color: #f9f9f9;
+            }
+            .messageDisplay {
+                padding: 10px;
+                margin-top: 200px; /* メッセージ表示部分のみ200px下げる */
+                background: #f0f0f0;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+                height: 40px;
+                overflow: hidden;
+            }
+            .inputText {
+                width: 100%;
+                padding: 10px;
+                margin: 5px 0;
+                box-sizing: border-box;
+                font-size: 1rem;
+            }
+
+            /* モバイル対応 */
+            @media (max-width: 600px) {
+                .container {
+                    flex-direction: column;
+                    align-items: center;
+                }
+                .messageBox {
+                    width: 90%;  /* スマホで画面幅に合わせる */
+                }
+                .messageDisplay {
+                    font-size: 14px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <h1>リアルタイムチャット</h1>
+
+        <div class="container">
+          <div class="messageBox">
+            <input id="inputText1" class="inputText" type="text" placeholder="メッセージ1を入力">
+            <div class="messageDisplay" id="messageDisplay1"></div>
+          </div>
+
+          <div class="messageBox">
+            <input id="inputText2" class="inputText" type="text" placeholder="メッセージ2を入力">
+            <div class="messageDisplay" id="messageDisplay2"></div>
+          </div>
+        </div>
+
+        <script src="/socket.io/socket.io.js"></script>
+        <script>
+          const socket = io();
+
+          const updateMessageDisplay = (message, displayId) => {
+            const display = document.getElementById(displayId);
+            display.innerText = message;
+          };
+
+          const handleInput = (inputId, eventId) => {
+            const input = document.getElementById(inputId);
+            input.addEventListener('input', () => {
+              const inputMessage = input.value;
+              socket.emit(eventId, inputMessage);
+            });
+          };
+
+          handleInput('inputText1', 'sendMessage1');
+          handleInput('inputText2', 'sendMessage2');
+
+          socket.on('receiveMessage1', (message) => {
+            updateMessageDisplay(message, 'messageDisplay1');
+          });
+
+          socket.on('receiveMessage2', (message) => {
+            updateMessageDisplay(message, 'messageDisplay2');
+          });
+        </script>
+    </body>
+</html>
