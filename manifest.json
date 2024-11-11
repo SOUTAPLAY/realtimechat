@@ -1,7 +1,15 @@
 {
-  "name": "リアルタイムチャット",
-  "theme_color": "#000000",
-  "background_color": "#000000",
-  "short_name": "リアルタイムチャット",
-  "id": "realtimechat"
+  "name": "RealTimeChat",
+  "short_name": "RTC",
+  "theme_color": "#333333",
+  "background_color": "#333333",
+  "display": "standalone",
+  "start_url": "./index.html",
+  "icons": [
+    {
+      "src": "./src/icon-512×512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
