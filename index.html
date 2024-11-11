@@ -1,11 +1,11 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
-        <link rel="stylesheet" href="/style.css" type="text/css">
-        <link rel="icon" href="/src/favicon.ico" type="image/x-icon">
-        <link rel="icon" href="/src/favicon.ico" type="image/png">
-        <link rel="apple-touch-icon" href="/src/favicon.ico">
-        <link rel="manifest" href="/manifest.json">
+        <link rel="stylesheet" href="style.css" type="text/css">
+        <link rel="icon" href="src/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="src/favicon.ico" type="image/png">
+        <link rel="apple-touch-icon" href="src/favicon.ico">
+        <link rel="manifest" href="manifest.json">
         <style>
             body {
                 text-align: center;
@@ -144,7 +144,7 @@
         </script>
         <script>
           if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
+            navigator.serviceWorker.register('sw.js')
               .then((reg) => console.log('Service worker registered', reg))
               .catch((err) => console.log('Service worker not registered', err));
           }
