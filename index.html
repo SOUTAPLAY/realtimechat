@@ -1,7 +1,7 @@
 <html>
     <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0,user-scalable=no">
-        <link rel="stylesheet" href="/style.css" type="text/css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="./style.css" type="text/css">
         <link rel="icon" href="https://raw.githubusercontent.com/SOUTAPLAY/realtimechat/refs/heads/main/src/favicon.ico" type="image/x-icon">
         <link rel="icon" href="https://raw.githubusercontent.com/SOUTAPLAY/realtimechat/refs/heads/main/src/favicon.ico" type="image/png">
         <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/SOUTAPLAY/realtimechat/refs/heads/main/src/favicon.ico">
@@ -16,10 +16,9 @@
             }
             .container {
                 display: flex;
-                flex-direction: row;
-                justify-content: center;
-                gap: 10px;
-                flex-wrap: wrap;
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
                 padding: 10px;
             }
             .messageBox {
@@ -33,7 +32,7 @@
             }
             .messageDisplay {
                 padding: 10px;
-                margin-top: 150px; /* メッセージ表示部分のみ200px下げる */
+                margin-top: 10px;
                 background: #f0f0f0;
                 border: 1px solid #ccc;
                 border-radius: 4px;
@@ -47,107 +46,73 @@
                 box-sizing: border-box;
                 font-size: 1rem;
             }
-
-            .darkbutton {
-              text-align: right;
-              margin-left: 600px;
-            }
         </style>
-
-        
-
-        <style>
-            /* モバイル対応 */
-            @media (max-width: 600px) {
-                .container {
-                    flex-direction: column;
-                    align-items: center;
-                }
-                .messageBox {
-                    width: 90%;  /* スマホで画面幅に合わせる */
-                }
-                .messageDisplay {
-                    font-size: 14px;
-                }
-                .darkbutton {
-                    margin-left: 280px;
-                }
-            }
-        </style>
-
-    <script>
-      document.addEventListener('touchmove', function(event) {
-          if (event.scale !== undefined && event.scale !== 1) {
-              event.preventDefault();
-          }
-      }, { passive: false });
-      let lastTouchEnd = 0;
-      document.addEventListener('touchend', function(event) {
-          const now = (new Date()).getTime();
-          if (now - lastTouchEnd <= 300) {
-              event.preventDefault();
-          }
-          lastTouchEnd = now;
-      }, false);
-      document.addEventListener('gesturestart', function(event) {
-          event.preventDefault();
-      });
-    </script>
-
     </head>
     <body>
         <h1>リアルタイムチャット</h1>
+        <div>部屋機能付き</div>
 
         <div class="container">
-          <div class="messageBox">
-            <input id="inputText1" class="inputText" type="text" placeholder="メッセージ1を入力">
-            <div class="messageDisplay" id="messageDisplay1"></div>
-          </div>
-
-          <div class="messageBox">
-            <input id="inputText2" class="inputText" type="text" placeholder="メッセージ2を入力">
-            <div class="messageDisplay" id="messageDisplay2"></div>
-          </div>
+            <div>
+                <input id="roomInput" class="inputText" type="text" placeholder="部屋名を入力">
+                <button id="joinRoomButton">部屋に参加</button>
+            </div>
+            <div class="messageBox">
+                <input id="inputText1" class="inputText" type="text" placeholder="メッセージ1を入力">
+                <div class="messageDisplay" id="messageDisplay1"></div>
+            </div>
+            <div class="messageBox">
+                <input id="inputText2" class="inputText" type="text" placeholder="メッセージ2を入力">
+                <div class="messageDisplay" id="messageDisplay2"></div>
+            </div>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
-<script>
-  new Darkmode().showWidget();
-</script>
 
         <script src="/socket.io/socket.io.js"></script>
         <script>
-          const socket = io();
+            const socket = io();
 
-          const updateMessageDisplay = (message, displayId) => {
-            const display = document.getElementById(displayId);
-            display.innerText = message;
-          };
+            let currentRoom = '';
 
-          const handleInput = (inputId, eventId) => {
-            const input = document.getElementById(inputId);
-            input.addEventListener('input', () => {
-              const inputMessage = input.value;
-              socket.emit(eventId, inputMessage);
+            document.getElementById('joinRoomButton').addEventListener('click', () => {
+                const room = document.getElementById('roomInput').value.trim();
+                if (room) {
+                    socket.emit('joinRoom', room);
+                    currentRoom = room;
+                    document.getElementById('messageDisplay1').innerText = `部屋「${room}」に参加しました`;
+                    document.getElementById('messageDisplay2').innerText = `部屋「${room}」に参加しました`;
+                }
             });
-          };
 
-          handleInput('inputText1', 'sendMessage1');
-          handleInput('inputText2', 'sendMessage2');
+            const handleInput = (inputId, eventId) => {
+                document.getElementById(inputId).addEventListener('input', () => {
+                    const message = document.getElementById(inputId).value;
+                    if (currentRoom) {
+                        socket.emit(eventId, { room: currentRoom, message });
+                    }
+                });
+            };
 
-          socket.on('receiveMessage1', (message) => {
-            updateMessageDisplay(message, 'messageDisplay1');
-          });
+            handleInput('inputText1', 'sendMessage1');
+            handleInput('inputText2', 'sendMessage2');
 
-          socket.on('receiveMessage2', (message) => {
-            updateMessageDisplay(message, 'messageDisplay2');
-          });
+            socket.on('receiveMessage1', (data) => {
+                if (data.room === currentRoom) {
+                    document.getElementById('messageDisplay1').innerText = data.message;
+                }
+            });
+
+            socket.on('receiveMessage2', (data) => {
+                if (data.room === currentRoom) {
+                    document.getElementById('messageDisplay2').innerText = data.message;
+                }
+            });
         </script>
         <script>
-          if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('https://raw.githubusercontent.com/SOUTAPLAY/realtimechat/refs/heads/main/sw.js')
-              .then((reg) => console.log('Service worker registered', reg))
-              .catch((err) => console.log('Service worker not registered', err));
-          }
-        </script>     
+            if ('serviceWorker' in navigator) {
+              navigator.serviceWorker.register('https://raw.githubusercontent.com/SOUTAPLAY/realtimechat/refs/heads/main/sw.js')
+                .then((reg) => console.log('Service worker registered', reg))
+                .catch((err) => console.log('Service worker not registered', err));
+            }
+          </script> 
     </body>
 </html>
