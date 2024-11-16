@@ -16,9 +16,10 @@
             }
             .container {
                 display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 20px;
+                flex-direction: row;
+                justify-content: center;
+                gap: 10px;
+                flex-wrap: wrap;
                 padding: 10px;
             }
             .messageBox {
@@ -32,7 +33,7 @@
             }
             .messageDisplay {
                 padding: 10px;
-                margin-top: 10px;
+                margin-top: 150px; /* メッセージ表示部分のみ200px下げる */
                 background: #f0f0f0;
                 border: 1px solid #ccc;
                 border-radius: 4px;
@@ -46,14 +47,28 @@
                 box-sizing: border-box;
                 font-size: 1rem;
             }
+
+            /* モバイル対応 */
+            @media (max-width: 600px) {
+                .container {
+                    flex-direction: column;
+                    align-items: center;
+                }
+                .messageBox {
+                    width: 90%;  /* スマホで画面幅に合わせる */
+                }
+                .messageDisplay {
+                    font-size: 14px;
+                }
+            }
         </style>
     </head>
     <body>
-        <h1>リアルタイムチャット</h1>
-        <div>部屋機能付き</div>
+        <h1>リアルタイムチャット - 名前付き</h1>
 
         <div class="container">
             <div>
+                <input id="nameInput" class="inputText" type="text" placeholder="名前を入力">
                 <input id="roomInput" class="inputText" type="text" placeholder="部屋名を入力">
                 <button id="joinRoomButton">部屋に参加</button>
             </div>
@@ -72,22 +87,25 @@
             const socket = io();
 
             let currentRoom = '';
+            let username = '';
 
             document.getElementById('joinRoomButton').addEventListener('click', () => {
+                const name = document.getElementById('nameInput').value.trim();
                 const room = document.getElementById('roomInput').value.trim();
-                if (room) {
-                    socket.emit('joinRoom', room);
+                if (name && room) {
+                    username = name;
+                    socket.emit('joinRoom', { name, room });
                     currentRoom = room;
-                    document.getElementById('messageDisplay1').innerText = `部屋「${room}」に参加しました`;
-                    document.getElementById('messageDisplay2').innerText = `部屋「${room}」に参加しました`;
+                    document.getElementById('messageDisplay1').innerText = `部屋「${room}」に${name}として参加しました`;
+                    document.getElementById('messageDisplay2').innerText = `部屋「${room}」に${name}として参加しました`;
                 }
             });
 
             const handleInput = (inputId, eventId) => {
                 document.getElementById(inputId).addEventListener('input', () => {
                     const message = document.getElementById(inputId).value;
-                    if (currentRoom) {
-                        socket.emit(eventId, { room: currentRoom, message });
+                    if (currentRoom && username) {
+                        socket.emit(eventId, { room: currentRoom, name: username, message });
                     }
                 });
             };
@@ -97,26 +115,20 @@
 
             socket.on('receiveMessage1', (data) => {
                 if (data.room === currentRoom) {
-                    document.getElementById('messageDisplay1').innerText = data.message;
+                    document.getElementById('messageDisplay1').innerText = `${data.name}: ${data.message}`;
                 }
             });
 
             socket.on('receiveMessage2', (data) => {
                 if (data.room === currentRoom) {
-                    document.getElementById('messageDisplay2').innerText = data.message;
+                    document.getElementById('messageDisplay2').innerText = `${data.name}: ${data.message}`;
                 }
             });
         </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
         <script>
-            if ('serviceWorker' in navigator) {
-              navigator.serviceWorker.register('https://raw.githubusercontent.com/SOUTAPLAY/realtimechat/refs/heads/main/sw.js')
-                .then((reg) => console.log('Service worker registered', reg))
-                .catch((err) => console.log('Service worker not registered', err));
-            }
-          </script> 
-          <script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
-          <script>
-            new Darkmode().showWidget();
-          </script>
+        new Darkmode().showWidget();
+        </script>
     </body>
 </html>
