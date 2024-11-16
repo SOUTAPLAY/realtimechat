@@ -19,20 +19,21 @@ server.listen(PORT, () => {
 io.on('connection', (socket) => {
     console.log('user connected');
 
-    socket.on('joinRoom', (room) => {
+    socket.on('joinRoom', (data) => {
+        const { name, room } = data;
         socket.join(room);
-        console.log(`User joined room: ${room}`);
+        console.log(`${name} joined room: ${room}`);
     });
 
     socket.on('sendMessage1', (data) => {
-        const { room, message } = data;
-        console.log(`Message1 in room ${room}: ${message}`);
-        io.to(room).emit('receiveMessage1', { room, message });
+        const { room, name, message } = data;
+        console.log(`Message1 from ${name} in room ${room}: ${message}`);
+        io.to(room).emit('receiveMessage1', { room, name, message });
     });
 
     socket.on('sendMessage2', (data) => {
-        const { room, message } = data;
-        console.log(`Message2 in room ${room}: ${message}`);
-        io.to(room).emit('receiveMessage2', { room, message });
+        const { room, name, message } = data;
+        console.log(`Message2 from ${name} in room ${room}: ${message}`);
+        io.to(room).emit('receiveMessage2', { room, name, message });
     });
 });
