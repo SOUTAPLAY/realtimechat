@@ -9,25 +9,30 @@ const io = socketIo(server);
 const PORT = 3000;
 
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
+    res.sendFile(__dirname + '/index.html');
 });
 
 server.listen(PORT, () => {
-  console.log(`listening on port ${PORT}`);
+    console.log(`listening on port ${PORT}`);
 });
 
 io.on('connection', (socket) => {
-  console.log('user connected');
+    console.log('user connected');
 
-  // メッセージ1を処理
-  socket.on('sendMessage1', (message) => {
-    console.log('Message1 has been sent: ', message);
-    io.emit('receiveMessage1', message);  // メッセージ1を全員に送信
-  });
+    socket.on('joinRoom', (room) => {
+        socket.join(room);
+        console.log(`User joined room: ${room}`);
+    });
 
-  // メッセージ2を処理
-  socket.on('sendMessage2', (message) => {
-    console.log('Message2 has been sent: ', message);
-    io.emit('receiveMessage2', message);  // メッセージ2を全員に送信
-  });
+    socket.on('sendMessage1', (data) => {
+        const { room, message } = data;
+        console.log(`Message1 in room ${room}: ${message}`);
+        io.to(room).emit('receiveMessage1', { room, message });
+    });
+
+    socket.on('sendMessage2', (data) => {
+        const { room, message } = data;
+        console.log(`Message2 in room ${room}: ${message}`);
+        io.to(room).emit('receiveMessage2', { room, message });
+    });
 });
