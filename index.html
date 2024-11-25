@@ -53,10 +53,6 @@
                 height: 30px;
             }
 
-            h1 {
-                margin-top: 10px;
-            }
-
             /* モバイル対応 */
             @media (max-width: 600px) {
                 .container {
@@ -89,8 +85,7 @@
                 <input id="inputText2" class="inputText" type="text" placeholder="メッセージ2を入力">
                 <div class="messageDisplay" id="messageDisplay2"></div>
             </div>
-        </div>
-
+        </div>          
         <script src="/socket.io/socket.io.js"></script>
         <script>
             const socket = io();
@@ -138,6 +133,44 @@
         <script src="https://cdn.jsdelivr.net/npm/darkmode-js@1.5.7/lib/darkmode-js.min.js"></script>
         <script>
         new Darkmode().showWidget();
+        </script>
+        <script>
+            // クッキーを設定する関数
+            const setCookie = (name, value, days) => {
+            const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+            document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+            };
+                  
+            // クッキーを取得する関数
+            const getCookie = (name) => {
+            const cookies = document.cookie.split('; ').reduce((acc, cookie) => {
+            const [key, value] = cookie.split('=');
+                acc[key] = decodeURIComponent(value);
+                return acc;
+            }, {});
+            return cookies[name] || '';
+            };
+                  
+            const handleInputWithCookie = (inputId, eventId, cookieName) => {
+            const input = document.getElementById(inputId);
+                      
+            // 入力イベントでクッキーに保存
+            input.addEventListener('input', () => {
+            const inputMessage = input.value;
+            setCookie(cookieName, inputMessage);
+            socket.emit(eventId, inputMessage);
+            });
+                  
+            // ページ読み込み時にクッキーから復元
+            const savedMessage = getCookie(cookieName);
+            if (savedMessage) {
+            input.value = savedMessage;
+            socket.emit(eventId, savedMessage); // サーバーに初期状態を送信
+            }
+            };
+                    
+            handleInputWithCookie('nameInput', 'nameinput', 'name');
+            handleInputWithCookie('roomInput', 'roominput', 'room');
         </script>
     </body>
 </html>
