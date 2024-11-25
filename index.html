@@ -53,12 +53,15 @@
                 height: 30px;
             }
 
-            .roomcheckbox {
-                position: fixed;
-                top: 85px;
-                left: 785px;
+            .inputText2 {
+                width: 200px;
+                height: 30px;
             }
-            
+
+            .roomcheckbox {
+                position: auto;
+            }
+
             /* モバイル対応 */
             @media (max-width: 600px) {
                 .container {
@@ -77,11 +80,10 @@
     </head>
     <body>
         <h1>リアルタイムチャット</h1>
-
         <div class="container">
             <div>
                 <input id="nameInput" class="inputText1" type="text" placeholder="名前を入力">
-                <input id="roomInput" class="inputText1" type="text" placeholder="部屋名を入力">
+                <input id="roomInput" class="inputText2" type="text" placeholder="部屋名を入力">
                 <input type="checkbox" class="roomcheckbox" id="roomtoggle">
                 <button id="joinRoomButton">部屋に参加</button>
             </div>
@@ -93,7 +95,7 @@
                 <input id="inputText2" class="inputText" type="text" placeholder="メッセージ2を入力">
                 <div class="messageDisplay" id="messageDisplay2"></div>
             </div>
-        </div>          
+        </div>
         <script src="/socket.io/socket.io.js"></script>
         <script>
             const socket = io();
@@ -143,45 +145,78 @@
         new Darkmode().showWidget();
         </script>
         <script>
-            // クッキーを設定する関数
-            const setCookie = (name, value, days) => {
-            const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
-            document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+            const inputField = document.getElementById('roomInput');
+            const toggleButton = document.getElementById('roomtoggle');
+        
+            let isHidden = false; // 文字が隠されている状態を管理
+        
+            toggleButton.addEventListener('click', () => {
+            if (!isHidden) {
+                // 文字を隠す
+                inputField.setAttribute('type', 'password'); // 入力フィールドのタイプをパスワードに変更
+                toggleButton.textContent = '文字を表示する'; // ボタンのラベルを変更
+            } else {
+                // 文字を表示する
+                inputField.setAttribute('type', 'text'); // 入力フィールドのタイプをテキストに戻す
+                toggleButton.textContent = '文字を隠す'; // ボタンのラベルを変更
+            }
+            isHidden = !isHidden; // 状態を切り替え
+            });
+        </script>
+        <script>// クッキーを設定する関数
+            const setCookie = (name, value, days = 7) => {
+                const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toUTCString();
+                document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
             };
-                  
+            
             // クッキーを取得する関数
             const getCookie = (name) => {
-            const cookies = document.cookie.split('; ').reduce((acc, cookie) => {
-            const [key, value] = cookie.split('=');
-                acc[key] = decodeURIComponent(value);
-                return acc;
-            }, {});
-            return cookies[name] || '';
+                const cookies = document.cookie.split('; ').reduce((acc, cookie) => {
+                    const [key, value] = cookie.split('=');
+                    acc[key] = decodeURIComponent(value);
+                    return acc;
+                }, {});
+                return cookies[name] || null;
             };
-                  
-            const handleInputWithCookie = (inputId, eventId, cookieName) => {
-            const input = document.getElementById(inputId);
-                      
-            // 入力イベントでクッキーに保存
-            input.addEventListener('input', () => {
-            const inputMessage = input.value;
-            setCookie(cookieName, inputMessage);
-            socket.emit(eventId, inputMessage);
+            
+            // 入力フィールドやチェックボックスの状態をクッキーに保存＆復元する関数
+            const handleElementWithCookie = (elementId, eventType, cookieName, onChangeCallback = null) => {
+                const element = document.getElementById(elementId);
+            
+                // ページ読み込み時にクッキーから状態を復元
+                const savedState = getCookie(cookieName);
+                if (savedState !== null) {
+                    if (element.type === 'checkbox') {
+                        element.checked = savedState === 'true';
+                    } else {
+                        element.value = savedState;
+                    }
+                    if (onChangeCallback) onChangeCallback(savedState); // 必要に応じて初期値の反映処理
+                }
+            
+                // 状態が変更されたらクッキーに保存
+                element.addEventListener(eventType, () => {
+                    const value = element.type === 'checkbox' ? element.checked : element.value;
+                    setCookie(cookieName, value);
+                    if (onChangeCallback) onChangeCallback(value);
+                });
+            };
+            
+            // 入力フィールドの状態を管理
+            handleElementWithCookie('nameInput', 'input', 'name', (value) => {
+                socket.emit('nameinput', value);
             });
-                  
-            // ページ読み込み時にクッキーから復元
-            const savedMessage = getCookie(cookieName);
-            if (savedMessage) {
-            input.value = savedMessage;
-            socket.emit(eventId, savedMessage); // サーバーに初期状態を送信
-            }
-            };
-                    
-            handleInputWithCookie('nameInput', 'nameinput', 'name');
-            handleInputWithCookie('roomInput', 'roominput', 'room');
-        </script>
-        <script>
+            
+            handleElementWithCookie('roomInput', 'input', 'room', (value) => {
+                socket.emit('roominput', value);
+            });
+            
+            // チェックボックスの状態を管理
+            handleElementWithCookie('roomtoggle', 'change', 'roomtoggleState');
+            </script>
+        <!-- <script>
             const checkbox = document.getElementById('roomtoggle');
+            const room = document.getElementById('roomInput')
             checkbox.addEventListener('change', () => {
                 if (checkbox.checked) {
                     room.style.visibility = 'visible';
@@ -191,6 +226,6 @@
                     room.style.visibility = 'hidden';
                 }
             })
-        </script>
+        </script>　後で使うかも -->
     </body>
 </html>
