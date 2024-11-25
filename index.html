@@ -53,6 +53,12 @@
                 height: 30px;
             }
 
+            .roomcheckbox {
+                position: fixed;
+                top: 85px;
+                left: 785px;
+            }
+            
             /* モバイル対応 */
             @media (max-width: 600px) {
                 .container {
@@ -67,11 +73,6 @@
                 }
             }
 
-            .roomcheckbox {
-                position: fixed;
-                top: 85px;
-                left: 785px;
-            }
         </style>
     </head>
     <body>
@@ -81,7 +82,7 @@
             <div>
                 <input id="nameInput" class="inputText1" type="text" placeholder="名前を入力">
                 <input id="roomInput" class="inputText1" type="text" placeholder="部屋名を入力">
-                <input type="checkbox" class="roomcheckbox" id="roomhidden">
+                <input type="checkbox" class="roomcheckbox" id="roomtoggle">
                 <button id="joinRoomButton">部屋に参加</button>
             </div>
             <div class="messageBox">
@@ -178,6 +179,18 @@
                     
             handleInputWithCookie('nameInput', 'nameinput', 'name');
             handleInputWithCookie('roomInput', 'roominput', 'room');
+        </script>
+        <script>
+            const checkbox = document.getElementById('roomtoggle');
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    room.style.visibility = 'visible';
+                    room.style.opacity = '1';
+                } else {
+                    room.style.opacity = '0';
+                    room.style.visibility = 'hidden';
+                }
+            })
         </script>
     </body>
 </html>
