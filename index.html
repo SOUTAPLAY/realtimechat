@@ -214,6 +214,28 @@
             // チェックボックスの状態を管理
             handleElementWithCookie('roomtoggle', 'change', 'roomtoggleState');
             </script>
+            <script>
+                let deferredPrompt;
+
+                window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                // インストールボタンを表示
+                });
+
+                // インストールボタンがクリックされたときの処理
+                installButton.addEventListener('click', (e) => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('ユーザーがインストールを承諾しました');
+                    }
+                    deferredPrompt = null;
+                    });
+                }
+                });
+            </script>
         <!-- <script>
             const checkbox = document.getElementById('roomtoggle');
             const room = document.getElementById('roomInput')
