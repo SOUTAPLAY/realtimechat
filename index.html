@@ -90,14 +90,29 @@
             <div class="messageBox">
                 <input id="inputText1" class="inputText" type="text" placeholder="メッセージ1を入力">
                 <div class="messageDisplay" id="messageDisplay1"></div>
-                <button id="copy-btn1"></button>
+                <button id="copy-btn1" type="button"></button>
             </div>
             <div class="messageBox">
                 <input id="inputText2" class="inputText" type="text" placeholder="メッセージ2を入力">
                 <div class="messageDisplay" id="messageDisplay2"></div>
-                <button id="copy-btn2"></button>
+                <button id="copy-btn2" type="button"></button>
             </div>
         </div>
+        <script>
+            //コピーボタン実装
+            const copy-btn1 = document.getElementById('copy-btn1');
+            const copy-btn2 = document.getElementById('copy-btn2');
+
+            const inputText1 = document.getElementById('inputText1');
+            const inputText2 = document.getElementById('inputText2');
+
+            copy-btn/\d/.addEventListener('click', () => {
+                const text = targetText.textContent;
+                navigator.clipboard.writeText(text).then(()).catch(err => {
+                    console.error('コピーに失敗しました', err);
+                });
+            });;
+        </script>
         <script src="/socket.io/socket.io.js"></script>
         <script>
             const socket = io();
