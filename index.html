@@ -1,7 +1,7 @@
 <html>
     <head>
-        <link rel="stylesheet" type="text/css" href="https://jsdelivr.net">
-        <script type="text/javascript" src="https://jsdelivr.net"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="./style.css" type="text/css">
         <link rel="icon" href="https://raw.githubusercontent.com/SOUTAPLAY/realtimechat/refs/heads/main/src/favicon.ico" type="image/x-icon">
@@ -102,39 +102,73 @@
         </div>
         <script>
             //コピーボタン実装
-            const copyButtons = document.querySelectorAll('button[id^="copy=btn"]');
+            const copyButtons = document.querySelectorAll('button[id^="copy-btn"]');
 
             copyButtons.forEach(button => {
                 button.addEventListener('click', () => {
-                    const num = button.id.replace('copy-btn','');
-
+                    const num = button.id.replace('copy-btn', '');
                     const targetDisplay = document.getElementById(`messageDisplay${num}`);
+                    const text = targetDisplay ? targetDisplay.textContent : '';
 
-                    const text = targetDisplay.textContent;
-
-                    navigator.clipboard.writeText(text).then(() => {
-                        Toastify({
-                            text: "コピーしました！", // 表示するメッセージ
-                            duration: 3000,         // 表示時間（3秒）
-                            gravity: "bottom",      // 位置：上(top) または 下(bottom)
-                            position: "right",      // 位置：左(left)、中央(center)、右(right)
-                            style: {
-                            background: "#333",   // 背景色
-                            color: "#fff"         // 文字色
-                          }
-                        }).showToast();
-                    }.catch(err => {
-                        Toastify({
-                            text: "コピーに失敗しました", // 表示するメッセージ
-                            duration: 3000,         // 表示時間（3秒）
-                            gravity: "bottom",      // 位置：上(top) または 下(bottom)
-                            position: "right",      // 位置：左(left)、中央(center)、右(right)
-                            style: {
-                            background: "#333",   // 背景色
-                            color: "#fff"         // 文字色
-                          }
-                        }).showToast();
-                    });
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(text).then(() => {
+                            Toastify({
+                                text: "コピーしました！", // 表示するメッセージ
+                                duration: 3000,         // 表示時間（3秒）
+                                gravity: "bottom",      // 位置：上(top) または 下(bottom)
+                                position: "right",      // 位置：左(left)、中央(center)、右(right)
+                                style: {
+                                    background: "#333",   // 背景色
+                                    color: "#fff"         // 文字色
+                                }
+                            }).showToast();
+                        }).catch(err => {
+                            console.error('コピーに失敗しました', err);
+                            Toastify({
+                                text: "コピーに失敗しました",
+                                duration: 3000,
+                                gravity: "bottom",
+                                position: "right",
+                                style: {
+                                    background: "#333",
+                                    color: "#fff"
+                                }
+                            }).showToast();
+                        });
+                    } else {
+                        const textArea = document.createElement('textarea');
+                        textArea.value = text;
+                        textArea.style.position = 'fixed';
+                        textArea.style.opacity = '0';
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        try {
+                            document.execCommand('copy');
+                            Toastify({
+                                text: "コピーしました！",
+                                duration: 3000,
+                                gravity: "bottom",
+                                position: "right",
+                                style: {
+                                    background: "#333",
+                                    color: "#fff"
+                                }
+                            }).showToast();
+                        } catch (err) {
+                            console.error('コピーに失敗しました', err);
+                            Toastify({
+                                text: "コピーに失敗しました",
+                                duration: 3000,
+                                gravity: "bottom",
+                                position: "right",
+                                style: {
+                                    background: "#333",
+                                    color: "#fff"
+                                }
+                            }).showToast();
+                        }
+                        document.body.removeChild(textArea);
+                    }
                 });
             });
         </script>
@@ -233,7 +267,7 @@
                     } else {
                         element.value = savedState;
                     }
-                    if (onChangeCallback) onChangeCallback(savedState); // 必要に応じて初期値の反映処理
+                    if (onChangeCallback) onChangeCallback(savedState);
                 }
             
                 // 状態が変更されたらクッキーに保存
