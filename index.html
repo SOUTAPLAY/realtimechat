@@ -107,7 +107,7 @@
             const inputText2 = document.getElementById('inputText2');
 
             copy-btn/\d/.addEventListener('click', () => {
-                const text = targetText.textContent;
+                const text = messageDisplay/\d/.textContent;
                 navigator.clipboard.writeText(text).then(()).catch(err => {
                     console.error('コピーに失敗しました', err);
                 });
