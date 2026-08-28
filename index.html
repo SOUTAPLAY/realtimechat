@@ -92,11 +92,13 @@
             <div class="messageBox">
                 <input id="inputText1" class="inputText" type="text" placeholder="メッセージ1を入力">
                 <div class="messageDisplay" id="messageDisplay1"></div>
+                <div id="messageInvisible1" hidden></div>
                 <button id="copy-btn1" type="button">コピー</button>
             </div>
             <div class="messageBox">
                 <input id="inputText2" class="inputText" type="text" placeholder="メッセージ2を入力">
                 <div class="messageDisplay" id="messageDisplay2"></div>
+                <div id="messageInvisible2" hidden></div>
                 <button id="copy-btn2" type="button">コピー</button>
             </div>
         </div>
@@ -206,12 +208,14 @@
             socket.on('receiveMessage1', (data) => {
                 if (data.room === currentRoom) {
                     document.getElementById('messageDisplay1').innerText = `${data.name}: ${data.message}`;
+                    document.getElementById('messageInvisible1').innerText = `${data.message}`;
                 }
             });
 
             socket.on('receiveMessage2', (data) => {
                 if (data.room === currentRoom) {
                     document.getElementById('messageDisplay2').innerText = `${data.name}: ${data.message}`;
+                    document.getElementById('messageInvisible2').innerText = `${data.message}`;
                 }
             });
         </script>
