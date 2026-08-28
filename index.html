@@ -109,7 +109,7 @@
             copyButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const num = button.id.replace('copy-btn', '');
-                    const targetDisplay = document.getElementById(`messageDisplay${num}`);
+                    const targetDisplay = document.getElementById(`messageInvisible${num}`);
                     const text = targetDisplay ? targetDisplay.textContent : '';
 
                     if (navigator.clipboard && navigator.clipboard.writeText) {
