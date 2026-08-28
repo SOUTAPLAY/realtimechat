@@ -1,5 +1,7 @@
 <html>
     <head>
+        <link rel="stylesheet" type="text/css" href="https://jsdelivr.net">
+        <script type="text/javascript" src="https://jsdelivr.net"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="./style.css" type="text/css">
         <link rel="icon" href="https://raw.githubusercontent.com/SOUTAPLAY/realtimechat/refs/heads/main/src/favicon.ico" type="image/x-icon">
@@ -100,18 +102,41 @@
         </div>
         <script>
             //コピーボタン実装
-            const copy-btn1 = document.getElementById('copy-btn1');
-            const copy-btn2 = document.getElementById('copy-btn2');
+            const copyButtons = document.querySelectorAll('button[id^="copy=btn"]');
 
-            const messageDisplay1 = document.getElementById('messageDisplay1');
-            const messageDisplay2 = document.getElementById('messageDisplay2');
+            copyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const num = button.id.replace('copy-btn','');
 
-            copy-btn/\d/.addEventListener('click', () => {
-                const text = messageDisplay/\d/.textContent;
-                navigator.clipboard.writeText(text).then(()).catch(err => {
-                    console.error('コピーに失敗しました', err);
+                    const targetDisplay = document.getElementById(`messageDisplay${num}`);
+
+                    const text = targetDisplay.textContent;
+
+                    navigator.clipboard.writeText(text).then(() => {
+                        Toastify({
+                            text: "コピーしました！", // 表示するメッセージ
+                            duration: 3000,         // 表示時間（3秒）
+                            gravity: "bottom",      // 位置：上(top) または 下(bottom)
+                            position: "right",      // 位置：左(left)、中央(center)、右(right)
+                            style: {
+                            background: "#333",   // 背景色
+                            color: "#fff"         // 文字色
+                          }
+                        }).showToast();
+                    }.catch(err => {
+                        Toastify({
+                            text: "コピーに失敗しました", // 表示するメッセージ
+                            duration: 3000,         // 表示時間（3秒）
+                            gravity: "bottom",      // 位置：上(top) または 下(bottom)
+                            position: "right",      // 位置：左(left)、中央(center)、右(right)
+                            style: {
+                            background: "#333",   // 背景色
+                            color: "#fff"         // 文字色
+                          }
+                        }).showToast();
+                    });
                 });
-            });;
+            });
         </script>
         <script src="/socket.io/socket.io.js"></script>
         <script>
